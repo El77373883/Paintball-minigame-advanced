@@ -1,9 +1,8 @@
 package me.adrian.paintball.scoreboard;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.*;
 import me.adrian.paintball.game.GameManager;
+import me.adrian.paintball.game.PlayerData;
+import org.bukkit.entity.Player;
 
 public class ScoreboardManager {
 
@@ -13,19 +12,19 @@ public class ScoreboardManager {
         this.gameManager = gameManager;
     }
 
-    public void update(Player player) {
-        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = board.registerNewObjective("paintball", "dummy", "§6Paintball Minigame");
-        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+    public void updateScoreboard(Player player) {
+        PlayerData data = gameManager.getPlayerData(player);
 
-        obj.getScore("§7Jugador: §f" + player.getName()).setScore(7);
-        obj.getScore("§7Equipo: §f" + gameManager.getTeam(player)).setScore(6);
-        obj.getScore("§7Kills: §f" + gameManager.getKills(player)).setScore(5);
-        obj.getScore("§7Vivos: §f" + gameManager.getAliveCount()).setScore(4);
-        obj.getScore("§7Tiempo: §f" + gameManager.getTime()).setScore(3);
-        obj.getScore("§7Coins: §f" + gameManager.getPlayerData(player).getCoins()).setScore(2);
-        obj.getScore("§bBienvenido!").setScore(1);
+        int kills = data.getKills();
+        int coins = data.getCoins();
+        int alive = gameManager.getAliveCount();
+        int time = gameManager.getTime();
 
-        player.setScoreboard(board);
+        // Aquí pondrías tu lógica de Scoreboard
+        player.sendMessage("§6=== Scoreboard ===");
+        player.sendMessage("§eKills: §f" + kills);
+        player.sendMessage("§eCoins: §f" + coins);
+        player.sendMessage("§eJugadores vivos: §f" + alive);
+        player.sendMessage("§eTiempo restante: §f" + time + "s");
     }
 }
