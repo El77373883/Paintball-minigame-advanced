@@ -5,7 +5,9 @@ import me.adrian.paintball.game.GameManager;
 import me.adrian.paintball.game.GameManager.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.*;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,10 +25,11 @@ public class ScoreboardManager {
     }
 
     public void createScoreboard(Player player) {
-        ScoreboardManager bukkitManager = Bukkit.getScoreboardManager();
+        // ⚠️ Importante: usamos Bukkit.getScoreboardManager() de org.bukkit
+        org.bukkit.scoreboard.ScoreboardManager bukkitManager = Bukkit.getScoreboardManager();
         if (bukkitManager == null) return;
 
-        Scoreboard board = bukkitManager.getNewScoreboard();
+        Scoreboard board = bukkitManager.getNewScoreboard(); // ✔ ahora sí funciona
         Objective obj = board.registerNewObjective("paintball", "dummy", "§a§lPaintball Stats");
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
@@ -52,6 +55,7 @@ public class ScoreboardManager {
 
         PlayerData data = gameManager.getPlayerData(player);
 
+        // Limpiamos líneas antiguas
         for (String line : board.getEntries()) {
             board.resetScores(line);
         }
@@ -69,7 +73,8 @@ public class ScoreboardManager {
 
     public void removeScoreboard(Player player) {
         if (!playerBoards.containsKey(player)) return;
-        player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+        org.bukkit.scoreboard.Scoreboard emptyBoard = Bukkit.getScoreboardManager().getNewScoreboard();
+        player.setScoreboard(emptyBoard);
         playerBoards.remove(player);
     }
 
