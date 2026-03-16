@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CoinsManager {
-
     private static final Map<Player, Integer> coins = new HashMap<>();
 
     public static int getCoins(Player player) {
