@@ -5,35 +5,36 @@ import me.adrian.paintball.game.GameManager;
 import me.adrian.paintball.listener.PaintballListener;
 import me.adrian.paintball.command.PaintballCommand;
 import me.adrian.paintball.command.PaintballAdminCommand;
+import me.adrian.paintball.scoreboard.ScoreboardTask;
+import org.bukkit.Bukkit;
 
 public class PaintballPlugin extends JavaPlugin {
 
     private GameManager gameManager;
-    private static PaintballPlugin instance;
 
     @Override
     public void onEnable() {
-        instance = this;
         this.gameManager = new GameManager();
 
+        // Registrar listeners
         getServer().getPluginManager().registerEvents(new PaintballListener(gameManager), this);
 
-        this.getCommand("pa").setExecutor(new PaintballCommand());
-        this.getCommand("paadmin").setExecutor(new PaintballAdminCommand());
+        // Registrar comandos
+        this.getCommand("pa").setExecutor(new PaintballCommand(this));
+        this.getCommand("paadmin").setExecutor(new PaintballAdminCommand(this));
 
-        getLogger().info("§6Paintball Minigame habilitado por §bSoyAdrianyt001");
+        // Scoreboard dinámico cada segundo
+        Bukkit.getScheduler().runTaskTimer(this, new ScoreboardTask(gameManager), 0L, 20L);
+
+        getLogger().info("Paintball Minigame hecho por soyadrianyt001 - habilitado correctamente.");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("§6Paintball Minigame deshabilitado.");
+        getLogger().info("PaintballPlugin deshabilitado.");
     }
 
     public GameManager getGameManager() {
         return gameManager;
-    }
-
-    public static PaintballPlugin getInstance() {
-        return instance;
     }
 }
