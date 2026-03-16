@@ -8,13 +8,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PaintballPlugin extends JavaPlugin {
 
-    private static PaintballPlugin instance; // instancia estática
+    private static PaintballPlugin instance;
     private GameManager gameManager;
     private ShopGUI shopGUI;
 
     @Override
     public void onEnable() {
-        instance = this; // inicializa instancia
+        instance = this;
         this.gameManager = new GameManager();
         this.shopGUI = new ShopGUI(this.gameManager);
 
