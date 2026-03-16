@@ -1,4 +1,4 @@
-package me.adrian.paintball;
+import me.adrian.paintball.game.GameManager;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
