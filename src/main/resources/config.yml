@@ -1,0 +1,38 @@
+# Configuración del PaintballPlugin Premium
+
+default-coins: 10
+snowballs-per-player: 64
+snowball-cost: 4
+coins-per-kill: 6
+max-skill-game-minutes: 5
+
+teams:
+  blue:
+    color: "BLUE"
+    armor-color: "BLUE"
+  green:
+    color: "GREEN"
+    armor-color: "GREEN"
+
+effects:
+  on-kill:
+    particle: "CRIT"
+    sound: "ENTITY_LIGHTNING_BOLT_THUNDER"
+    lightning: true
+
+scoreboard:
+  enabled: true
+  update-ticks: 20
+  show-team: true
+  show-kills: true
+  show-alive: true
+  show-time: true
+
+gui:
+  arena-panel:
+    rows: 5
+    glass-color: "WHITE_STAINED_GLASS_PANE"
+    back-arrow: "ARROW"
+  shop:
+    snowballs-price: 4
+    snowballs-amount: 32
