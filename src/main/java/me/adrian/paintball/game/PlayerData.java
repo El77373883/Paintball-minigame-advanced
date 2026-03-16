@@ -1,4 +1,4 @@
-package me.adrian.paintball.game;
+import me.adrian.paintball.game.GameTeam;
 
 import org.bukkit.entity.Player;
 
