@@ -1,4 +1,4 @@
-package me.adrian.paintball.command;
+import me.adrian.paintball.shop.ShopGUI;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
