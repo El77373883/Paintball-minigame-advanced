@@ -1,78 +1,64 @@
 package me.adrian.paintball.command;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import me.adrian.paintball.PaintballPlugin;
 import me.adrian.paintball.game.GameManager;
-import me.adrian.paintball.menu.ArenaPanel;
+import me.adrian.paintball.gui.ShopGUI;
 
 public class PaintballCommand implements CommandExecutor {
 
     private final PaintballPlugin plugin;
-    private final GameManager gameManager;
+    private final ShopGUI shopGUI;
 
     public PaintballCommand(PaintballPlugin plugin) {
         this.plugin = plugin;
-        this.gameManager = plugin.getGameManager();
+        this.shopGUI = new ShopGUI(plugin.getGameManager());
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cSolo jugadores pueden usar estos comandos!");
+        if (!(sender instanceof Player p)) {
+            sender.sendMessage("§cSolo jugadores pueden ejecutar este comando.");
             return true;
         }
 
+        GameManager gm = plugin.getGameManager();
+
         if (args.length == 0) {
-            player.sendMessage("§6§lPAINTBALL §f- Comandos disponibles: /pa help");
+            p.sendMessage("§6=== Paintball ===");
+            p.sendMessage("§e/pa join §7- Entrar a una arena");
+            p.sendMessage("§e/pa shop §7- Abrir tienda");
+            p.sendMessage("§e/pa help §7- Comandos disponibles");
             return true;
         }
 
         switch (args[0].toLowerCase()) {
-
             case "join":
-                if (!gameManager.isInArena(player)) {
-                    gameManager.joinArena(player);
-                    player.sendMessage("§aTe uniste a la arena!");
-                } else {
-                    player.sendMessage("§cYa estas en una arena!");
+                // Por simplicidad, unir a la primera arena disponible
+                if (gm.getArenas().isEmpty()) {
+                    p.sendMessage("§cNo hay arenas disponibles.");
+                    return true;
                 }
-                break;
-
+                gm.joinArena(p, gm.getArenas().get(0));
+                p.sendMessage("§aHas entrado a la arena §e" + gm.getArenas().get(0).getName());
+                return true;
+            case "shop":
+                shopGUI.open(p);
+                return true;
             case "help":
-                player.sendMessage("§6§lPA Commands:");
-                player.sendMessage("§7/pa join §f- Entrar al juego");
-                player.sendMessage("§7/pa edit arena §f- Editar tu arena");
-                player.sendMessage("§7/pa creator §f- Mostrar creador del plugin");
-                player.sendMessage("§7/pa admin panel §f- Panel de administración de arenas");
-                player.sendMessage("§7/pa admin wand §f- Seleccionar area con hacha");
-                player.sendMessage("§7/pa admin create <arena> §f- Crear arena nueva");
-                player.sendMessage("§7/pa admin reload §f- Recargar plugin");
-                break;
-
+                p.sendMessage("§6Comandos de Paintball:");
+                p.sendMessage("§e/pa join §7- Entrar a la arena");
+                p.sendMessage("§e/pa shop §7- Abrir tienda");
+                return true;
             case "creator":
-                player.sendMessage("§bPlugin creado por §aAdrianelPror");
-                break;
-
-            case "edit":
-                if (args.length > 1 && args[1].equalsIgnoreCase("arena")) {
-                    ArenaPanel panel = new ArenaPanel(player, gameManager.getArena(player));
-                    panel.open();
-                } else {
-                    player.sendMessage("§cUso: /pa edit arena");
-                }
-                break;
-
+                p.sendMessage("§6Plugin creado por §eAdrianElProR");
+                return true;
             default:
-                player.sendMessage("§cComando invalido! Usa /pa help");
-                break;
+                p.sendMessage("§cComando no reconocido. Usa /pa help");
+                return true;
         }
-
-        return true;
     }
 }
