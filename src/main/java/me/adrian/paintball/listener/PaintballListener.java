@@ -1,23 +1,41 @@
-package me.adrian.paintball.game;
+package me.adrian.paintball.listener;
 
+import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import me.adrian.paintball.game.GameManager;
 
-public class PlayerData {
-    private final Player player;
-    private GameTeam team;
-    private int kills = 0;
-    private int coins = 32;
-    private boolean alive = true;
+public class PaintballListener implements Listener {
 
-    public PlayerData(Player player) { this.player = player; }
+    private final GameManager gameManager;
 
-    public Player getPlayer() { return player; }
-    public GameTeam getTeam() { return team; }
-    public void setTeam(GameTeam team) { this.team = team; }
-    public int getKills() { return kills; }
-    public void addKill() { kills++; }
-    public int getCoins() { return coins; }
-    public void addCoins(int c) { coins += c; }
-    public boolean isAlive() { return alive; }
-    public void setAlive(boolean alive) { this.alive = alive; }
+    public PaintballListener(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+
+    @EventHandler
+    public void onSnowballHit(PlayerInteractEvent e) {
+        // Aquí agregar lógica para detectar hits con bola de nieve
+        Player shooter = e.getPlayer();
+        Player target = shooter; // Simulación, reemplazar por hit real
+
+        // Eliminar jugador
+        eliminatePlayer(shooter, target);
+    }
+
+    public void eliminatePlayer(Player shooter, Player eliminated) {
+        Location loc = eliminated.getLocation();
+        var world = loc.getWorld();
+
+        if (world != null) {
+            world.spawnParticle(Particle.CRIT, loc, 30, 0.5, 0.5, 0.5, 0.1);
+            world.playSound(loc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f);
+            world.strikeLightningEffect(loc);
+        }
+    }
 }
