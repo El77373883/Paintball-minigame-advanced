@@ -11,9 +11,7 @@ public class ScoreboardTask extends BukkitRunnable {
 
     private final GameManager gm;
 
-    public ScoreboardTask(GameManager gm) {
-        this.gm = gm;
-    }
+    public ScoreboardTask(GameManager gm) { this.gm = gm; }
 
     @Override
     public void run() {
