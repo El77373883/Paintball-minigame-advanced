@@ -6,10 +6,14 @@ import me.adrian.paintball.game.GameManager;
 import me.adrian.paintball.shop.ShopGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Collection;
 
@@ -34,8 +38,7 @@ public class PaintballCommand implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            // Abrir menú de arenas
-            shopGUI.openMenu(player);
+            openArenaMenu(player);
             return true;
         }
 
@@ -49,8 +52,13 @@ public class PaintballCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.GREEN + "--- Arenas disponibles ---");
                 for (Arena arena : arenas) {
                     int count = arena.getPlayers().size();
-                    player.sendMessage(ChatColor.AQUA + arena.getName() + ChatColor.GRAY + " - " + count + " jugadores");
+                    player.sendMessage(ChatColor.AQUA + arena.getName() + ChatColor.GRAY + " - " + count + " jugadores conectados");
                 }
+            }
+            case "creator" -> {
+                player.sendMessage(ChatColor.GOLD + "Plugin Paintball by soyadrianyt001");
+                player.sendMessage(ChatColor.GREEN + "Creador: soyadrianyt001");
+                player.sendMessage(ChatColor.AQUA + "Disfruta el juego y personaliza tus arenas!");
             }
             case "join" -> {
                 if (args.length < 2) {
@@ -137,5 +145,29 @@ public class PaintballCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    private void openArenaMenu(Player player) {
+        Collection<Arena> arenas = gameManager.getArenas();
+        if (arenas.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "No hay arenas creadas.");
+            return;
+        }
+
+        Inventory menu = Bukkit.createInventory(null, 9 * ((arenas.size() + 8) / 9), ChatColor.GREEN + "Arenas de Paintball");
+
+        for (Arena arena : arenas) {
+            ItemStack item = new ItemStack(Material.SNOWBALL);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName(ChatColor.AQUA + arena.getName());
+            meta.setLore(java.util.List.of(
+                    ChatColor.YELLOW + "Jugadores conectados: " + arena.getPlayers().size(),
+                    ChatColor.GRAY + "Haz click para unirte"
+            ));
+            item.setItemMeta(meta);
+            menu.addItem(item);
+        }
+
+        player.openInventory(menu);
     }
 }
