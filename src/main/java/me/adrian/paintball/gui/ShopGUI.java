@@ -38,9 +38,11 @@ public class ShopGUI {
         if (slot == 4) { // Snowballs
             int coins = gameManager.getCoins(player);
             if (coins >= 4) {
-                gameManager.getCoins(player); // Deduce coins
+                // Usamos el método de GameManager para quitar coins
+                gameManager.removeCoins(player, 4);
+                // Agregamos las snowballs
                 player.getInventory().addItem(new ItemStack(Material.SNOWBALL, 32));
-                gameManager.getCoins().put(player, coins - 4);
+                // Mensaje al jugador
                 player.sendMessage("§aHas comprado 32 Snowballs por 4 Coins!");
             } else {
                 player.sendMessage("§cNo tienes suficientes Coins!");
