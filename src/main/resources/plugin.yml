@@ -4,7 +4,7 @@ main: me.adrian.paintball.PaintballPlugin
 api-version: 1.21
 commands:
   pa:
-    description: Comando principal de Paintball
+    description: Comando principal Paintball
     usage: /pa <subcomando>
   paadmin:
     description: Comandos de administración
