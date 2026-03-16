@@ -41,9 +41,11 @@ public class PaintballCommand implements CommandExecutor {
                     p.sendMessage("§cNo hay arenas disponibles.");
                     return true;
                 }
-                // Accedemos a la primera arena de la lista
-                p.sendMessage("§aHas entrado a la arena §e" + gm.getArenas().get(0).getName());
-                gm.joinArena(p, gm.getArenas().get(0));
+                // Tomamos la primera arena del Map
+                String firstArenaName = gm.getArenas().iterator().next().getName();
+                gm.setCurrentArena(firstArenaName);
+                gm.addPlayer(p);
+                p.sendMessage("§aHas entrado a la arena §e" + firstArenaName);
                 return true;
             case "shop":
                 shopGUI.open(p);
