@@ -1,9 +1,7 @@
 name: PaintballPlugin
-main: me.adrian.paintball.PaintballPlugin
 version: 1.0
-api-version: 1.21
+main: me.adrian.paintball.PaintballPlugin
+api-version: 1.20
 commands:
   pa:
-    description: Paintball main command
-  paadmin:
-    description: Paintball admin commands
+    description: Comando principal del Paintball
