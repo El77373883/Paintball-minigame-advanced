@@ -36,6 +36,10 @@ public class GameManager {
         }
     }
 
+    public void deleteArena(String name) {
+        arenas.remove(name);
+    }
+
     public void setCurrentArena(String name) {
         this.currentArena = arenas.get(name);
     }
@@ -49,7 +53,9 @@ public class GameManager {
     }
 
     // ---------------- GAME ---------------- //
-    public GameState getState() { return state; }
+    public GameState getState() {
+        return state;
+    }
 
     public void startGame() {
         if (currentArena == null) return;
@@ -66,15 +72,13 @@ public class GameManager {
         PaintballPlugin.getInstance().getLogger().info("Juego finalizado en arena: " + currentArena.getName());
     }
 
-    public boolean isPlaying(Player player) { return playerTeams.containsKey(player); }
-    public boolean isAlive(Player player) { return isPlaying(player) && playerKills.containsKey(player); }
-
     // ---------------- PLAYERS ---------------- //
     public void addPlayer(Player player, GameTeam team) {
         playerTeams.put(player, team);
         playerKills.put(player, 0);
         playerCoins.putIfAbsent(player, 32);
         snowballCount.putIfAbsent(player, 32);
+        if (currentArena != null) currentArena.addPlayer(player, team);
     }
 
     public void removePlayer(Player player) {
@@ -82,19 +86,24 @@ public class GameManager {
         playerKills.remove(player);
         snowballCount.remove(player);
         playerCoins.remove(player);
+        if (currentArena != null) currentArena.removePlayer(player);
     }
 
-    public void eliminate(Player shooter, Player eliminated) {
-        if (!isAlive(eliminated)) return;
-
-        playerKills.put(shooter, playerKills.getOrDefault(shooter, 0) + 1);
-        playerCoins.put(shooter, playerCoins.getOrDefault(shooter, 0) + 5);
-        removePlayer(eliminated);
+    public boolean isPlaying(Player player) {
+        return playerTeams.containsKey(player);
     }
 
-    // ---------------- TEAMS ---------------- //
+    public boolean isAlive(Player player) {
+        return isPlaying(player) && playerKills.containsKey(player);
+    }
+
+    public GameTeam getTeam(Player player) {
+        return playerTeams.get(player);
+    }
+
     private void assignTeams() {
         if (currentArena == null) return;
+
         List<Player> players = new ArrayList<>(playerKills.keySet());
         Collections.shuffle(players);
         int half = players.size() / 2;
@@ -109,7 +118,8 @@ public class GameManager {
     private void giveTeamArmor() {
         for (Map.Entry<Player, GameTeam> entry : playerTeams.entrySet()) {
             Player p = entry.getKey();
-            Color color = entry.getValue() == GameTeam.BLUE ? Color.BLUE : Color.GREEN;
+            GameTeam team = entry.getValue();
+            Color color = team == GameTeam.BLUE ? Color.BLUE : Color.GREEN;
 
             ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
             ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
@@ -141,34 +151,12 @@ public class GameManager {
         }
     }
 
-    public GameTeam getTeam(Player player) { return playerTeams.get(player); }
-
     // ---------------- MÉTODOS DE COMPATIBILIDAD ---------------- //
     public int getKills(Player player) { return playerKills.getOrDefault(player, 0); }
     public int getCoins(Player player) { return playerCoins.getOrDefault(player, 0); }
+    public int getSnowballs(Player player) { return snowballCount.getOrDefault(player, 0); }
     public void addCoins(Player player, int amount) { playerCoins.put(player, getCoins(player) + amount); }
     public void removeCoins(Player player, int amount) { playerCoins.put(player, Math.max(0, getCoins(player) - amount)); }
     public void refillSnowballs(Player player, int amount) { snowballCount.put(player, getSnowballs(player) + amount); }
-    public int getSnowballs(Player player) { return snowballCount.getOrDefault(player, 0); }
 
-    public PlayerData getPlayerData(Player player) {
-        return new PlayerData(getKills(player), getCoins(player), getSnowballs(player));
-    }
-
-    public boolean canThrowSnowball(Player player) {
-        snowballCount.putIfAbsent(player, 32);
-        return snowballCount.get(player) > 0;
-    }
-
-    public void throwSnowball(Player player) {
-        snowballCount.put(player, snowballCount.get(player) - 1);
-    }
-
-    public int getAliveCount() {
-        int count = 0;
-        for (Player p : playerTeams.keySet()) {
-            if (isAlive(p)) count++;
-        }
-        return count;
-    }
 }
