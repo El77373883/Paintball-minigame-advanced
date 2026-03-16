@@ -1,11 +1,9 @@
-name: PaintballMinigame
-version: 1.0
+name: PaintballPlugin
 main: me.adrian.paintball.PaintballPlugin
+version: 1.0
 api-version: 1.21
 commands:
   pa:
-    description: Comando principal Paintball
-    usage: /pa <subcomando>
+    description: Paintball main command
   paadmin:
-    description: Comandos de administración
-    usage: /paadmin <subcomando>
+    description: Paintball admin commands
