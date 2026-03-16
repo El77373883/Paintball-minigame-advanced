@@ -1,12 +1,12 @@
 package me.adrian.paintball;
 
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.Bukkit;
 import me.adrian.paintball.game.GameManager;
 import me.adrian.paintball.listener.PaintballListener;
 import me.adrian.paintball.command.PaintballCommand;
 import me.adrian.paintball.command.PaintballAdminCommand;
 import me.adrian.paintball.scoreboard.ScoreboardTask;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Bukkit;
 
 public class PaintballPlugin extends JavaPlugin {
 
@@ -16,26 +16,31 @@ public class PaintballPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        // Inicializar GameManager
         this.gameManager = new GameManager();
 
         // Registrar listeners
-        Bukkit.getPluginManager().registerEvents(new PaintballListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new PaintballListener(gameManager), this);
 
         // Registrar comandos
-        this.getCommand("pa").setExecutor(new PaintballCommand());
-        this.getCommand("paadmin").setExecutor(new PaintballAdminCommand());
+        getCommand("pa").setExecutor(new PaintballCommand());
+        getCommand("paadmin").setExecutor(new PaintballAdminCommand());
 
-        // Scoreboard dinámico
-        Bukkit.getScheduler().runTaskTimer(this, new ScoreboardTask(gameManager), 0L, 20L);
+        // Tareas automáticas: ScoreboardTask
+        ScoreboardTask sbTask = new ScoreboardTask(gameManager);
+        sbTask.runTaskTimer(this, 20L, 20L); // cada segundo
 
-        getLogger().info("Paintball Minigame hecho por soyadrianyt001 - habilitado correctamente.");
+        // Mensaje de inicio
+        getLogger().info("§aPaintball Minigame cargado y listo! Hecho por soyadrianyt001");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("PaintballPlugin deshabilitado.");
+        getLogger().info("§cPaintball Minigame deshabilitado.");
     }
 
+    // Singleton para acceder desde otras clases
     public static PaintballPlugin getInstance() {
         return instance;
     }
