@@ -15,34 +15,40 @@ public class ShopGUI {
 
     private final GameManager gameManager;
 
-    public ShopGUI(GameManager gm) {
-        this.gameManager = gm;
+    // Constructor recibe GameManager
+    public ShopGUI(GameManager gameManager) {
+        this.gameManager = gameManager;
     }
 
+    // Abrir la tienda
     public void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 9, "§6Tienda de Paintball");
 
+        // Item de snowballs
         ItemStack snowball = new ItemStack(Material.SNOWBALL, 32);
         ItemMeta meta = snowball.getItemMeta();
-        meta.setDisplayName("§b32 Snowballs");
-        List<String> lore = new ArrayList<>();
-        lore.add("§7Precio: 4 Coins");
-        meta.setLore(lore);
-        snowball.setItemMeta(meta);
-        inv.setItem(4, snowball);
+        if (meta != null) {
+            meta.setDisplayName("§b32 Snowballs");
+            List<String> lore = new ArrayList<>();
+            lore.add("§7Precio: 4 Coins");
+            lore.add("§7Tienes: " + gameManager.getCoins(player) + " Coins");
+            meta.setLore(lore);
+            snowball.setItemMeta(meta);
+        }
 
+        inv.setItem(4, snowball); // Slot central
         player.openInventory(inv);
     }
 
+    // Manejar clicks dentro de la tienda
     public boolean handleClick(Player player, int slot) {
         if (slot == 4) { // Snowballs
             int coins = gameManager.getCoins(player);
             if (coins >= 4) {
-                // Usamos el método de GameManager para quitar coins
+                // Quitar coins
                 gameManager.removeCoins(player, 4);
-                // Agregamos las snowballs
+                // Dar snowballs
                 player.getInventory().addItem(new ItemStack(Material.SNOWBALL, 32));
-                // Mensaje al jugador
                 player.sendMessage("§aHas comprado 32 Snowballs por 4 Coins!");
             } else {
                 player.sendMessage("§cNo tienes suficientes Coins!");
