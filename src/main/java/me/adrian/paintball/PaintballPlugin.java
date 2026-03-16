@@ -9,25 +9,31 @@ import me.adrian.paintball.command.PaintballAdminCommand;
 public class PaintballPlugin extends JavaPlugin {
 
     private GameManager gameManager;
+    private static PaintballPlugin instance;
 
     @Override
     public void onEnable() {
+        instance = this;
         this.gameManager = new GameManager();
 
         getServer().getPluginManager().registerEvents(new PaintballListener(gameManager), this);
 
-        getCommand("pa").setExecutor(new PaintballCommand(this));
-        getCommand("paadmin").setExecutor(new PaintballAdminCommand(this));
+        this.getCommand("pa").setExecutor(new PaintballCommand());
+        this.getCommand("paadmin").setExecutor(new PaintballAdminCommand());
 
-        getLogger().info("§a[PaintballPlugin] Paintball minigame hecho por §bSoyAdrianyt001");
+        getLogger().info("§6Paintball Minigame habilitado por §bSoyAdrianyt001");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("§c[PaintballPlugin] Paintball minigame deshabilitado");
+        getLogger().info("§6Paintball Minigame deshabilitado.");
     }
 
     public GameManager getGameManager() {
         return gameManager;
+    }
+
+    public static PaintballPlugin getInstance() {
+        return instance;
     }
 }
