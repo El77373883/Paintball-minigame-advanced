@@ -14,8 +14,6 @@ public class GameManager {
     private final Map<Player, Integer> kills = new HashMap<>();
     private int gameTime = 0;
 
-    public GameManager() {}
-
     public void createArena(String name) {
         arenas.put(name, new Arena(name));
     }
@@ -31,12 +29,12 @@ public class GameManager {
                 GameTeam team = arena.getPlayers().size() % 2 == 0 ? GameTeam.BLUE : GameTeam.GREEN;
                 arena.join(p, team);
                 playerArena.put(p, arena);
-                setupScoreboard(p, team);
+                setupScoreboard(p, team, arena);
             }
         }
     }
 
-    public void setupScoreboard(Player player, GameTeam team) {
+    public void setupScoreboard(Player player, GameTeam team, Arena arena) {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         if (manager == null) return;
 
