@@ -1,70 +1,37 @@
 package me.adrian.paintball.game;
 
 import org.bukkit.entity.Player;
-import java.util.*;
-import org.bukkit.Bukkit;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GameManager {
 
-    private final PaintballPlugin plugin;
-    private final Map<Player, PlayerData> playerDataMap = new HashMap<>();
-    private final List<Arena> arenas = new ArrayList<>();
-    private Arena currentArena;
+    private final Map<String, Arena> arenas = new HashMap<>();
+    private final Map<Player, Arena> playerArena = new HashMap<>();
 
-    public GameManager(PaintballPlugin plugin) {
-        this.plugin = plugin;
+    public GameManager() {}
+
+    public void createArena(String name) {
+        arenas.put(name, new Arena(name));
     }
 
-    public void addArena(Arena arena) {
-        arenas.add(arena);
+    public Arena getArena(Player p) {
+        return playerArena.get(p);
     }
 
-    public Arena getArena(String name) {
-        return arenas.stream().filter(a -> a.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    public void joinArena(Player p) {
+        if (!arenas.isEmpty()) {
+            Arena arena = arenas.values().stream().findAny().orElse(null);
+            if (arena != null) {
+                // Alterna equipos por tamaño
+                GameTeam team = arena.getPlayers().size() % 2 == 0 ? GameTeam.BLUE : GameTeam.GREEN;
+                arena.join(p, team);
+                playerArena.put(p, arena);
+            }
+        }
     }
 
-    public void joinArena(Player player, Arena arena) {
-        playerDataMap.put(player, new PlayerData(player));
-        currentArena = arena;
-        // asignar equipo, spawn, etc.
+    public boolean isInArena(Player p) {
+        return playerArena.containsKey(p);
     }
-
-    public void leaveArena(Player player) {
-        playerDataMap.remove(player);
-    }
-
-    public boolean isPlaying(Player player) {
-        return playerDataMap.containsKey(player);
-    }
-
-    public void eliminate(Player shooter, Player eliminated) {
-        if (!isPlaying(eliminated)) return;
-
-        PlayerData data = playerDataMap.get(eliminated);
-        data.setAlive(false);
-
-        // Dar coins al killer
-        PlayerData shooterData = playerDataMap.get(shooter);
-        if (shooterData != null) shooterData.addCoins(10);
-
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            eliminated.getWorld().spawnParticle(org.bukkit.Particle.CRIT_MAGIC, eliminated.getLocation(), 30, 0.5, 0.5, 0.5, 0.1);
-            eliminated.getWorld().playSound(eliminated.getLocation(), org.bukkit.Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1f, 1f);
-            eliminated.getWorld().strikeLightningEffect(eliminated.getLocation());
-        });
-    }
-
-    public int getKills(Player player) {
-        return playerDataMap.getOrDefault(player, new PlayerData(player)).getKills();
-    }
-
-    public GameTeam getTeam(Player player) {
-        return playerDataMap.getOrDefault(player, new PlayerData(player)).getTeam();
-    }
-
-    public GameState getState() {
-        return GameState.LOBBY;
-    }
-
-    public enum GameState { LOBBY, IN_GAME, END }
 }
