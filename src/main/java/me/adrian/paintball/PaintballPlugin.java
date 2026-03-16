@@ -8,18 +8,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PaintballPlugin extends JavaPlugin {
 
+    private static PaintballPlugin instance; // instancia estática
     private GameManager gameManager;
     private ShopGUI shopGUI;
 
     @Override
     public void onEnable() {
-        // Inicializar GameManager primero
+        instance = this; // inicializa instancia
         this.gameManager = new GameManager();
-
-        // Pasar gameManager al constructor de ShopGUI
         this.shopGUI = new ShopGUI(this.gameManager);
 
-        // Registrar comandos
         this.getCommand("pa").setExecutor(new PaintballCommand(this));
         this.getCommand("paadmin").setExecutor(new PaintballAdminCommand(this));
 
@@ -29,6 +27,10 @@ public class PaintballPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("PaintballPlugin deshabilitado!");
+    }
+
+    public static PaintballPlugin getInstance() {
+        return instance;
     }
 
     public GameManager getGameManager() {
