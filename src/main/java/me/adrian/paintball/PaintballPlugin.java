@@ -12,19 +12,19 @@ public class PaintballPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.gameManager = new GameManager(this);
+        this.gameManager = new GameManager();
 
         getServer().getPluginManager().registerEvents(new PaintballListener(gameManager), this);
 
         getCommand("pa").setExecutor(new PaintballCommand(this));
         getCommand("paadmin").setExecutor(new PaintballAdminCommand(this));
 
-        getLogger().info("Paintball Minigame hecho por soyadrianyt001 - 100% profesional y jugable.");
+        getLogger().info("§a[PaintballPlugin] Paintball minigame hecho por §bSoyAdrianyt001");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("PaintballPlugin deshabilitado.");
+        getLogger().info("§c[PaintballPlugin] Paintball minigame deshabilitado");
     }
 
     public GameManager getGameManager() {
