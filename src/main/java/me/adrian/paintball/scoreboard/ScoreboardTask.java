@@ -1,12 +1,11 @@
 package me.adrian.paintball.scoreboard;
 
-import me.adrian.paintball.game.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
-
-import java.util.List;
+import me.adrian.paintball.game.GameManager;
+import me.adrian.paintball.game.GameManager.GameTeam;
 
 public class ScoreboardTask extends BukkitRunnable {
 
@@ -18,26 +17,49 @@ public class ScoreboardTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (gm.getState() != GameManager.GameState.IN_GAME) return;
-        if (gm.getArena("default") == null) return;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!gm.isPlaying(player)) continue;
 
-        List<Player> players = gm.getArena("default").getAlivePlayers();
-        for (Player p : players) {
             ScoreboardManager manager = Bukkit.getScoreboardManager();
             if (manager == null) continue;
+
             Scoreboard board = manager.getNewScoreboard();
-            Objective obj = board.registerNewObjective("paintball", "dummy", "§aPaintball Minigame");
-            obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+            Objective objective = board.registerNewObjective("paintball", "dummy", "§b§lPAINTBALL");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-            int kills = gm.getKills(p);
-            String team = gm.getArena("default").getGreenTeam().contains(p) ? "Verde" : "Azul";
-            int alive = gm.getArena("default").getAlivePlayers().size();
+            // Equipo
+            GameTeam team = gm.getTeam(player);
+            String teamName = team == GameTeam.BLUE ? "§9Azul" : "§aVerde";
+            Score teamScore = objective.getScore("§7Equipo: " + teamName);
+            teamScore.setScore(6);
 
-            obj.getScore("§7Equipo: §f" + team).setScore(3);
-            obj.getScore("§7Kills: §f" + kills).setScore(2);
-            obj.getScore("§7Vivos: §f" + alive).setScore(1);
+            // Kills
+            int kills = gm.getKills(player);
+            Score killsScore = objective.getScore("§7Kills: §e" + kills);
+            killsScore.setScore(5);
 
-            p.setScoreboard(board);
+            // Jugadores vivos
+            int alive = gm.getAlivePlayers(team);
+            Score aliveScore = objective.getScore("§7Vivos: §e" + alive);
+            aliveScore.setScore(4);
+
+            // Coins
+            int coins = gm.getCoins(player);
+            Score coinsScore = objective.getScore("§7Coins: §6" + coins);
+            coinsScore.setScore(3);
+
+            // Tiempo de juego
+            int time = gm.getGameTime();
+            int minutes = time / 60;
+            int seconds = time % 60;
+            Score timeScore = objective.getScore(String.format("§7Tiempo: §e%02d:%02d", minutes, seconds));
+            timeScore.setScore(2);
+
+            // Separador
+            Score separator = objective.getScore("§f----------------");
+            separator.setScore(1);
+
+            player.setScoreboard(board);
         }
     }
 }
