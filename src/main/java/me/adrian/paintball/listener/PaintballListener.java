@@ -19,16 +19,16 @@ public class PaintballListener implements Listener {
     }
 
     @EventHandler
-    public void onSnowballHit(PlayerInteractEvent e) {
-        // Aquí agregar lógica para detectar hits con bola de nieve
-        Player shooter = e.getPlayer();
-        Player target = shooter; // Simulación, reemplazar por hit real
-
-        // Eliminar jugador
-        eliminatePlayer(shooter, target);
+    public void onPlayerHit(PlayerInteractEvent event) {
+        // Ejemplo de lógica al dar hit (añadir rayos y partículas)
+        Player shooter = event.getPlayer();
+        // Aquí debes detectar a quién le da la bola y llamar:
+        // eliminatePlayer(shooter, targetPlayer);
     }
 
     public void eliminatePlayer(Player shooter, Player eliminated) {
+        gameManager.addKill(shooter);
+
         Location loc = eliminated.getLocation();
         var world = loc.getWorld();
 
