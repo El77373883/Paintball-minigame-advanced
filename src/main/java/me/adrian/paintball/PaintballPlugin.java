@@ -1,51 +1,37 @@
 package me.adrian.paintball;
 
+import org.bukkit.plugin.java.JavaPlugin;
 import me.adrian.paintball.game.GameManager;
 import me.adrian.paintball.listener.PaintballListener;
-import me.adrian.paintball.command.PaintballCommand;
-import me.adrian.paintball.command.PaintballAdminCommand;
+import me.adrian.paintball.listener.ShopListener;
+import me.adrian.paintball.shop.ShopGUI;
 import me.adrian.paintball.scoreboard.ScoreboardTask;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.Bukkit;
 
 public class PaintballPlugin extends JavaPlugin {
 
-    private static PaintballPlugin instance;
     private GameManager gameManager;
+    private ShopGUI shopGUI;
 
     @Override
     public void onEnable() {
-        instance = this;
+        this.gameManager = new GameManager(this);
+        this.shopGUI = new ShopGUI(gameManager);
 
-        // Inicializar GameManager
-        this.gameManager = new GameManager();
-
-        // Registrar listeners
+        // Listeners
         getServer().getPluginManager().registerEvents(new PaintballListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new ShopListener(shopGUI), this);
 
-        // Registrar comandos
-        getCommand("pa").setExecutor(new PaintballCommand());
-        getCommand("paadmin").setExecutor(new PaintballAdminCommand());
+        // Scoreboard actualizado cada segundo
+        new ScoreboardTask(gameManager).runTaskTimer(this, 0L, 20L);
 
-        // Tareas automáticas: ScoreboardTask
-        ScoreboardTask sbTask = new ScoreboardTask(gameManager);
-        sbTask.runTaskTimer(this, 20L, 20L); // cada segundo
-
-        // Mensaje de inicio
-        getLogger().info("§aPaintball Minigame cargado y listo! Hecho por soyadrianyt001");
-    }
-
-    @Override
-    public void onDisable() {
-        getLogger().info("§cPaintball Minigame deshabilitado.");
-    }
-
-    // Singleton para acceder desde otras clases
-    public static PaintballPlugin getInstance() {
-        return instance;
+        getLogger().info("Paintball Minigame 1.21.11 habilitado ✅ Hecho por soyadrianyt001");
     }
 
     public GameManager getGameManager() {
         return gameManager;
+    }
+
+    public ShopGUI getShopGUI() {
+        return shopGUI;
     }
 }
