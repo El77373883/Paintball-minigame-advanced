@@ -4,10 +4,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
 import me.adrian.paintball.PaintballPlugin;
 import me.adrian.paintball.game.GameManager;
-import me.adrian.paintball.shop.ShopGUI; // Correcto: usamos el ShopGUI de shop
+import me.adrian.paintball.shop.ShopGUI;
 
 public class PaintballCommand implements CommandExecutor {
 
@@ -38,29 +37,22 @@ public class PaintballCommand implements CommandExecutor {
 
         switch (args[0].toLowerCase()) {
             case "join":
-                // Unir a la primera arena disponible
                 if (gm.getArenas().isEmpty()) {
                     p.sendMessage("§cNo hay arenas disponibles.");
                     return true;
                 }
-                gm.joinArena(p, gm.getArenas().get(0));
+                // Accedemos a la primera arena de la lista
                 p.sendMessage("§aHas entrado a la arena §e" + gm.getArenas().get(0).getName());
+                gm.joinArena(p, gm.getArenas().get(0));
                 return true;
-
             case "shop":
                 shopGUI.open(p);
                 return true;
-
             case "help":
                 p.sendMessage("§6Comandos de Paintball:");
                 p.sendMessage("§e/pa join §7- Entrar a la arena");
                 p.sendMessage("§e/pa shop §7- Abrir tienda");
                 return true;
-
-            case "creator":
-                p.sendMessage("§6Plugin creado por §eAdrianElProR");
-                return true;
-
             default:
                 p.sendMessage("§cComando no reconocido. Usa /pa help");
                 return true;
