@@ -1,39 +1,34 @@
 package me.adrian.paintball;
 
 import me.adrian.paintball.command.PaintballCommand;
+import me.adrian.paintball.command.PaintballAdminCommand;
 import me.adrian.paintball.game.GameManager;
 import me.adrian.paintball.shop.ShopGUI;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PaintballPlugin extends JavaPlugin {
 
-    private static PaintballPlugin instance;
-
     private GameManager gameManager;
     private ShopGUI shopGUI;
 
     @Override
     public void onEnable() {
-        instance = this;
-
-        // Inicializamos GameManager y ShopGUI
+        // Inicializar GameManager primero
         this.gameManager = new GameManager();
-        this.shopGUI = new ShopGUI();
 
-        // Registramos comando /pa
+        // Pasar gameManager al constructor de ShopGUI
+        this.shopGUI = new ShopGUI(this.gameManager);
+
+        // Registrar comandos
         this.getCommand("pa").setExecutor(new PaintballCommand(this));
+        this.getCommand("paadmin").setExecutor(new PaintballAdminCommand(this));
 
-        getLogger().info("Paintball Plugin by soyadrianyt001 habilitado!");
+        getLogger().info("PaintballPlugin habilitado!");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("Paintball Plugin deshabilitado!");
-    }
-
-    // ---------------- GETTERS ---------------- //
-    public static PaintballPlugin getInstance() {
-        return instance;
+        getLogger().info("PaintballPlugin deshabilitado!");
     }
 
     public GameManager getGameManager() {
