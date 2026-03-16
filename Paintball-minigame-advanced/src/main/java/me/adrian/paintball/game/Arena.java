@@ -1,18 +1,19 @@
 package me.adrian.paintball.game;
 
+import org.bukkit.entity.Player;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
-import me.adrian.paintball.game.GameTeam; // importa el enum si lo usas
-import org.bukkit.entity.Player; // si necesitas jugadores de Bukkit
+import java.util.ArrayList;
 
 public class Arena {
 
     private String name;
-    private List<Player> players; // ejemplo de lista de jugadores
-    private GameTeam team; // ejemplo de equipo asignado
+    private List<Player> players = new ArrayList<>();
+    private Map<Player, GameTeam> playerTeams = new HashMap<>();
 
     public Arena(String name) {
         this.name = name;
-        // inicializa otras cosas si quieres
     }
 
     public String getName() {
@@ -27,17 +28,18 @@ public class Arena {
         return players;
     }
 
-    public void setPlayers(List<Player> players) {
-        this.players = players;
+    public void addPlayer(Player player, GameTeam team) {
+        players.add(player);
+        playerTeams.put(player, team);
     }
 
-    public GameTeam getTeam() {
-        return team;
+    public void removePlayer(Player player) {
+        players.remove(player);
+        playerTeams.remove(player);
     }
 
-    public void setTeam(GameTeam team) {
-        this.team = team;
+    // Devuelve el equipo de un jugador
+    public GameTeam getTeam(Player player) {
+        return playerTeams.getOrDefault(player, GameTeam.BLUE); // por defecto azul
     }
-
-    // Aquí puedes agregar más métodos para lógica del juego
 }
