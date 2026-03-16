@@ -1,6 +1,5 @@
-package me.adrian.paintball.shop;
+package me.adrian.paintball.gui;
 
-import me.adrian.paintball.PaintballPlugin;
 import me.adrian.paintball.game.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,17 +10,32 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class ShopGUI {
 
-    private final GameManager gm = PaintballPlugin.getInstance().getGameManager();
+    private final GameManager gm;
 
-    public void openShop(Player p) {
-        Inventory inv = Bukkit.createInventory(null, 9, "§6Tienda de Paintball");
+    public ShopGUI(GameManager gm) {
+        this.gm = gm;
+    }
+
+    public void open(Player p) {
+        Inventory inv = Bukkit.createInventory(null, 9, "Tienda de Paintball");
 
         ItemStack snowballs = new ItemStack(Material.SNOWBALL, 32);
         ItemMeta meta = snowballs.getItemMeta();
-        meta.setDisplayName("§bComprar 32 bolas de nieve (5 coins)");
+        if (meta != null) meta.setDisplayName("§aComprar 32 bolas - 5 Coins");
         snowballs.setItemMeta(meta);
 
-        inv.setItem(0, snowballs);
+        inv.setItem(4, snowballs);
         p.openInventory(inv);
+    }
+
+    public void buy(Player p) {
+        int coins = gm.getCoins(p);
+        if (coins >= 5) {
+            gm.getCoins(p); // actualizar
+            p.getInventory().addItem(new ItemStack(Material.SNOWBALL, 32));
+            p.sendMessage("§aHas comprado 32 bolas de nieve!");
+        } else {
+            p.sendMessage("§cNo tienes suficientes monedas!");
+        }
     }
 }
