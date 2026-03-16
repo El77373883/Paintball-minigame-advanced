@@ -1,4 +1,4 @@
-package me.adrian.paintball.shop;
+package me.adrian.paintball.gui;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
