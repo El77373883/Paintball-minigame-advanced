@@ -33,6 +33,7 @@ public class PaintballListener implements Listener {
 
     public void eliminatePlayer(Player shooter, Player eliminated) {
         if (shooter == null || eliminated == null) return;
+
         gameManager.eliminatePlayer(shooter, eliminated);
 
         Location loc = eliminated.getLocation();
