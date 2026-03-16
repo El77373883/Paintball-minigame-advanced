@@ -1,4 +1,4 @@
-package me.adrian.paintball.shop;
+package me.adrian.paintball.gui;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -8,58 +8,45 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import me.adrian.paintball.game.GameManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShopGUI {
 
-    private final GameManager gm;
+    private final GameManager gameManager;
 
     public ShopGUI(GameManager gm) {
-        this.gm = gm;
+        this.gameManager = gm;
     }
 
-    public void openShop(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 9, "§bTienda Paintball");
+    public void open(Player player) {
+        Inventory inv = Bukkit.createInventory(null, 9, "§6Tienda de Paintball");
 
-        // Bola de nieve
-        ItemStack snowballs = new ItemStack(Material.SNOWBALL, 32);
-        ItemMeta snowMeta = snowballs.getItemMeta();
-        snowMeta.setDisplayName("§fComprar 32 bolas de nieve §6- 10 coins");
-        snowballs.setItemMeta(snowMeta);
-        inv.setItem(0, snowballs);
-
-        // Ejemplo: efectos
-        ItemStack lightning = new ItemStack(Material.GOLDEN_CARROT);
-        ItemMeta lMeta = lightning.getItemMeta();
-        lMeta.setDisplayName("§fEfecto Trueno §6- 20 coins");
-        lightning.setItemMeta(lMeta);
-        inv.setItem(1, lightning);
+        ItemStack snowball = new ItemStack(Material.SNOWBALL, 32);
+        ItemMeta meta = snowball.getItemMeta();
+        meta.setDisplayName("§b32 Snowballs");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Precio: 4 Coins");
+        meta.setLore(lore);
+        snowball.setItemMeta(meta);
+        inv.setItem(4, snowball);
 
         player.openInventory(inv);
     }
 
-    public void handleClick(Player player, int slot) {
-        int coins = gm.getCoins(player);
-
-        switch (slot) {
-            case 0 -> { // Bolas de nieve
-                if (coins >= 10) {
-                    gm.addSnowballs(player, 32);
-                    gm.removeCoins(player, 10);
-                    player.sendMessage("§aCompraste 32 bolas de nieve!");
-                    player.closeInventory();
-                } else {
-                    player.sendMessage("§cNo tienes suficientes coins.");
-                }
+    public boolean handleClick(Player player, int slot) {
+        if (slot == 4) { // Snowballs
+            int coins = gameManager.getCoins(player);
+            if (coins >= 4) {
+                gameManager.getCoins(player); // Deduce coins
+                player.getInventory().addItem(new ItemStack(Material.SNOWBALL, 32));
+                gameManager.getCoins().put(player, coins - 4);
+                player.sendMessage("§aHas comprado 32 Snowballs por 4 Coins!");
+            } else {
+                player.sendMessage("§cNo tienes suficientes Coins!");
             }
-            case 1 -> { // Efecto Trueno
-                if (coins >= 20) {
-                    gm.setPlayerEffect(player, "LIGHTNING");
-                    gm.removeCoins(player, 20);
-                    player.sendMessage("§aCompraste el efecto Trueno!");
-                    player.closeInventory();
-                } else {
-                    player.sendMessage("§cNo tienes suficientes coins.");
-                }
-            }
+            return true;
         }
+        return false;
     }
 }
