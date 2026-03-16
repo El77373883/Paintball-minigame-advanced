@@ -9,3 +9,7 @@ commands:
   paadmin:
     description: Comandos de administrador de Paintball
     usage: /paadmin <subcomando>
+permissions:
+  paintball.admin:
+    description: Permiso de administrador
+    default: op
