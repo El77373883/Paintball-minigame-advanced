@@ -5,5 +5,7 @@ api-version: 1.21
 commands:
   pa:
     description: Comando principal de Paintball
+    usage: /pa <subcomando>
   paadmin:
-    description: Comando de administración de Paintball
+    description: Comandos de administrador de Paintball
+    usage: /paadmin <subcomando>
