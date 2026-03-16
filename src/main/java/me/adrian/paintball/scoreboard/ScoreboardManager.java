@@ -14,17 +14,17 @@ public class ScoreboardManager {
 
     public void updateScoreboard(Player player) {
         PlayerData data = gameManager.getPlayerData(player);
+        if (data == null) return;
 
-        int kills = data.getKills();
-        int coins = data.getCoins();
         int alive = gameManager.getAliveCount();
         int time = gameManager.getTime();
+        int kills = data.getKills();
+        int coins = data.getCoins();
 
-        // Aquí pondrías tu lógica de Scoreboard
         player.sendMessage("§6=== Scoreboard ===");
-        player.sendMessage("§eKills: §f" + kills);
-        player.sendMessage("§eCoins: §f" + coins);
-        player.sendMessage("§eJugadores vivos: §f" + alive);
-        player.sendMessage("§eTiempo restante: §f" + time + "s");
+        player.sendMessage("§eVivos: §a" + alive);
+        player.sendMessage("§eTiempo restante: §a" + time + "s");
+        player.sendMessage("§eKills: §a" + kills);
+        player.sendMessage("§eCoins: §a" + coins);
     }
 }
