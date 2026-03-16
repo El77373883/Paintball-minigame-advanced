@@ -23,6 +23,9 @@ public class GameManager {
     private final Map<Player, Integer> playerCoins = new HashMap<>();
     private final Map<Player, Integer> snowballCount = new HashMap<>();
 
+    private int gameTime = 0; // segundos de juego
+    private Timer gameTimer;
+
     public GameManager() {
         this.state = GameState.WAITING;
     }
@@ -53,22 +56,27 @@ public class GameManager {
     }
 
     // ---------------- GAME ---------------- //
-    public GameState getState() {
-        return state;
-    }
+    public GameState getState() { return state; }
 
     public void startGame() {
         if (currentArena == null) return;
+
         state = GameState.IN_GAME;
         assignTeams();
         giveTeamArmor();
+        startTimer();
+
         PaintballPlugin.getInstance().getLogger().info("Juego iniciado en arena: " + currentArena.getName());
     }
 
     public void endGame() {
         state = GameState.FINISHED;
+        stopTimer();
         playerTeams.clear();
         playerKills.clear();
+        playerCoins.clear();
+        snowballCount.clear();
+
         PaintballPlugin.getInstance().getLogger().info("Juego finalizado en arena: " + currentArena.getName());
     }
 
@@ -78,14 +86,16 @@ public class GameManager {
         playerKills.put(player, 0);
         playerCoins.putIfAbsent(player, 32);
         snowballCount.putIfAbsent(player, 32);
+
         if (currentArena != null) currentArena.addPlayer(player, team);
     }
 
     public void removePlayer(Player player) {
         playerTeams.remove(player);
         playerKills.remove(player);
-        snowballCount.remove(player);
         playerCoins.remove(player);
+        snowballCount.remove(player);
+
         if (currentArena != null) currentArena.removePlayer(player);
     }
 
@@ -158,5 +168,62 @@ public class GameManager {
     public void addCoins(Player player, int amount) { playerCoins.put(player, getCoins(player) + amount); }
     public void removeCoins(Player player, int amount) { playerCoins.put(player, Math.max(0, getCoins(player) - amount)); }
     public void refillSnowballs(Player player, int amount) { snowballCount.put(player, getSnowballs(player) + amount); }
+
+    // ---------------- MÉTODOS PARA SCOREBOARD ---------------- //
+    public int getAliveCount() {
+        int count = 0;
+        for (Player p : playerTeams.keySet()) {
+            if (isAlive(p)) count++;
+        }
+        return count;
+    }
+
+    public int getTime() { return gameTime; }
+
+    public PlayerData getPlayerData(Player player) {
+        return new PlayerData(playerKills.getOrDefault(player, 0),
+                              playerCoins.getOrDefault(player, 0),
+                              snowballCount.getOrDefault(player, 0));
+    }
+
+    private void startTimer() {
+        stopTimer();
+        gameTime = 0;
+        gameTimer = new Timer();
+        gameTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (state != GameState.IN_GAME) {
+                    stopTimer();
+                    return;
+                }
+                gameTime++;
+            }
+        }, 1000, 1000);
+    }
+
+    private void stopTimer() {
+        if (gameTimer != null) {
+            gameTimer.cancel();
+            gameTimer = null;
+        }
+    }
+
+    // ---------------- CLASE INTERNA ---------------- //
+    public static class PlayerData {
+        private final int kills;
+        private final int coins;
+        private final int snowballs;
+
+        public PlayerData(int kills, int coins, int snowballs) {
+            this.kills = kills;
+            this.coins = coins;
+            this.snowballs = snowballs;
+        }
+
+        public int getKills() { return kills; }
+        public int getCoins() { return coins; }
+        public int getSnowballs() { return snowballs; }
+    }
 
 }
