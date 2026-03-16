@@ -1,54 +1,29 @@
 package me.adrian.paintball.listener;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Snowball;
 import me.adrian.paintball.game.GameManager;
-import me.adrian.paintball.gui.ShopGUI;
-import me.adrian.paintball.gui.ArenaPanelGUI;
-import me.adrian.paintball.game.Arena;
+import me.adrian.paintball.shop.ShopGUI;
 
 public class PaintballListener implements Listener {
 
     private final GameManager gameManager;
     private final ShopGUI shopGUI;
-    private final ArenaPanelGUI panelGUI;
 
     public PaintballListener(GameManager gm) {
         this.gameManager = gm;
-        this.shopGUI = new ShopGUI(gm);
-        this.panelGUI = new ArenaPanelGUI();
+        this.shopGUI = new ShopGUI(gm); // Inicializamos la tienda
     }
 
     @EventHandler
-    public void onSnowballHit(ProjectileHitEvent event) {
-        if (!(event.getEntity() instanceof Snowball)) return;
-        if (!(event.getHitEntity() instanceof Player)) return;
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
 
-        Snowball snowball = (Snowball) event.getEntity();
-        Player shooter = (Player) snowball.getShooter();
-        Player hit = (Player) event.getHitEntity();
-
-        gameManager.eliminate(shooter, hit);
-    }
-
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player)) return;
-        Player p = (Player) e.getWhoClicked();
-        e.setCancelled(true);
-
-        String title = e.getView().getTitle();
-
-        if (title.equals("§6Tienda de Paintball")) {
-            shopGUI.handleClick(p, e.getSlot());
-        } else if (title.startsWith("§6Panel Arena: ")) {
-            Arena arena = gameManager.getArena(p);
-            panelGUI.handleClick(p, e.getSlot(), arena);
+        // Abrir la tienda al hacer clic derecho con un EMERALD
+        if (player.getInventory().getItemInMainHand().getType() == org.bukkit.Material.EMERALD) {
+            shopGUI.open(player);
         }
     }
 }
