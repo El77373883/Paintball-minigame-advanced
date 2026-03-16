@@ -51,14 +51,8 @@ public class PaintballCommand implements CommandExecutor {
                 }
                 player.sendMessage(ChatColor.GREEN + "--- Arenas disponibles ---");
                 for (Arena arena : arenas) {
-                    int count = arena.getPlayers().size();
-                    player.sendMessage(ChatColor.AQUA + arena.getName() + ChatColor.GRAY + " - " + count + " jugadores conectados");
+                    player.sendMessage(ChatColor.AQUA + arena.getName() + ChatColor.GRAY + " - " + arena.getPlayers().size() + " jugadores");
                 }
-            }
-            case "creator" -> {
-                player.sendMessage(ChatColor.GOLD + "Plugin Paintball by soyadrianyt001");
-                player.sendMessage(ChatColor.GREEN + "Creador: soyadrianyt001");
-                player.sendMessage(ChatColor.AQUA + "Disfruta el juego y personaliza tus arenas!");
             }
             case "join" -> {
                 if (args.length < 2) {
@@ -72,76 +66,26 @@ public class PaintballCommand implements CommandExecutor {
                     player.sendMessage(ChatColor.RED + "Arena " + args[1] + " no encontrada.");
                     return true;
                 }
-                arena.addPlayer(player);
-                player.sendMessage(ChatColor.GREEN + "Te has unido a la arena " + ChatColor.AQUA + arena.getName());
+                // Asignar equipo automáticamente
+                GameManager.GameTeam team = Math.random() < 0.5 ? GameManager.GameTeam.BLUE : GameManager.GameTeam.GREEN;
+                gameManager.addPlayer(player, team);
+
+                player.sendMessage(ChatColor.GREEN + "Te has unido a la arena " + ChatColor.AQUA + arena.getName() + ChatColor.GREEN + " en el equipo " + ChatColor.AQUA + team);
             }
             case "leave" -> {
                 gameManager.removePlayer(player);
                 player.sendMessage(ChatColor.YELLOW + "Has salido del juego.");
             }
             case "stats" -> {
-                int kills = gameManager.getKills(player);
-                int coins = gameManager.getCoins(player);
-                int snowballs = gameManager.getSnowballs(player);
-
                 player.sendMessage(ChatColor.GREEN + "--- Tus Stats ---");
-                player.sendMessage(ChatColor.AQUA + "Kills: " + ChatColor.YELLOW + kills);
-                player.sendMessage(ChatColor.AQUA + "Coins: " + ChatColor.YELLOW + coins);
-                player.sendMessage(ChatColor.AQUA + "Snowballs: " + ChatColor.YELLOW + snowballs);
+                player.sendMessage(ChatColor.AQUA + "Kills: " + ChatColor.YELLOW + gameManager.getKills(player));
+                player.sendMessage(ChatColor.AQUA + "Coins: " + ChatColor.YELLOW + gameManager.getCoins(player));
+                player.sendMessage(ChatColor.AQUA + "Snowballs: " + ChatColor.YELLOW + gameManager.getSnowballs(player));
             }
-            case "admin" -> {
-                if (!player.hasPermission("paintball.admin")) {
-                    player.sendMessage(ChatColor.RED + "No tienes permisos para esto.");
-                    return true;
-                }
-                if (args.length < 2) {
-                    player.sendMessage(ChatColor.RED + "Uso: /pa admin <create|delete|set|start|stop>");
-                    return true;
-                }
-                switch (args[1].toLowerCase()) {
-                    case "create" -> {
-                        if (args.length < 3) {
-                            player.sendMessage(ChatColor.RED + "Uso: /pa admin create <arena>");
-                            return true;
-                        }
-                        gameManager.createArena(args[2]);
-                        player.sendMessage(ChatColor.GREEN + "Arena creada: " + ChatColor.AQUA + args[2]);
-                    }
-                    case "delete" -> {
-                        if (args.length < 3) {
-                            player.sendMessage(ChatColor.RED + "Uso: /pa admin delete <arena>");
-                            return true;
-                        }
-                        Arena arena = gameManager.getArenas().stream()
-                                .filter(a -> a.getName().equalsIgnoreCase(args[2]))
-                                .findFirst().orElse(null);
-                        if (arena == null) {
-                            player.sendMessage(ChatColor.RED + "Arena no encontrada: " + args[2]);
-                            return true;
-                        }
-                        gameManager.getArenas().remove(arena);
-                        player.sendMessage(ChatColor.YELLOW + "Arena eliminada: " + ChatColor.AQUA + args[2]);
-                    }
-                    case "set" -> {
-                        if (args.length < 3) {
-                            player.sendMessage(ChatColor.RED + "Uso: /pa admin set <arena>");
-                            return true;
-                        }
-                        gameManager.setCurrentArena(args[2]);
-                        player.sendMessage(ChatColor.GREEN + "Arena actual: " + ChatColor.AQUA + args[2]);
-                    }
-                    case "start" -> {
-                        gameManager.startGame();
-                        player.sendMessage(ChatColor.GREEN + "Juego iniciado en arena " + ChatColor.AQUA + gameManager.getCurrentArena().getName());
-                    }
-                    case "stop" -> {
-                        gameManager.endGame();
-                        player.sendMessage(ChatColor.RED + "Juego finalizado en arena " + ChatColor.AQUA + gameManager.getCurrentArena().getName());
-                    }
-                    default -> player.sendMessage(ChatColor.RED + "Subcomando admin inválido.");
-                }
+            case "creator" -> {
+                player.sendMessage(ChatColor.GOLD + "Plugin Paintball by soyadrianyt001");
             }
-            default -> player.sendMessage(ChatColor.RED + "Comando no válido. Usa /pa o /pa help");
+            default -> player.sendMessage(ChatColor.RED + "Comando no válido. Usa /pa list, join, leave, stats");
         }
 
         return true;
