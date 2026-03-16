@@ -1,81 +1,46 @@
 package me.adrian.paintball.command;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import me.adrian.paintball.PaintballPlugin;
+import me.adrian.paintball.gui.AdminPanelGUI;
+import me.adrian.paintball.game.GameManager;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import me.adrian.paintball.PaintballPlugin;
-import me.adrian.paintball.game.Arena;
-import me.adrian.paintball.game.GameManager;
 
 public class PaintballAdminCommand implements CommandExecutor {
 
-    private final PaintballPlugin plugin;
-    private final GameManager gameManager;
-
-    public PaintballAdminCommand(PaintballPlugin plugin) {
-        this.plugin = plugin;
-        this.gameManager = plugin.getGameManager();
-    }
+    private final GameManager gm = PaintballPlugin.getInstance().getGameManager();
+    private final AdminPanelGUI panelGUI = new AdminPanelGUI(gm);
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cSolo jugadores pueden usar estos comandos!");
-            return true;
-        }
+        if (!(sender instanceof Player p)) return true;
 
         if (args.length == 0) {
-            player.sendMessage("§6§lPA Admin Commands:");
-            player.sendMessage("§7/pa admin panel §f- Abrir panel");
-            player.sendMessage("§7/pa admin wand §f- Seleccionar area con hacha");
-            player.sendMessage("§7/pa admin create <arena> §f- Crear arena");
-            player.sendMessage("§7/pa admin reload §f- Recargar plugin");
+            p.sendMessage("§6/paadmin help - Mostrar comandos admin");
             return true;
         }
 
         switch (args[0].toLowerCase()) {
-
-            case "panel":
-                Arena arena = gameManager.getArena(player);
-                if (arena != null) {
-                    arena.openAdminPanel(player);
-                } else {
-                    player.sendMessage("§cNo estas en una arena!");
-                }
-                break;
-
-            case "wand":
-                ItemStack wand = new ItemStack(Material.WOODEN_AXE);
-                player.getInventory().addItem(wand);
-                player.sendMessage("§aHacha de selección otorgada!");
-                break;
-
-            case "create":
-                if (args.length < 2) {
-                    player.sendMessage("§cUso: /pa admin create <arena>");
-                    return true;
-                }
-                String arenaName = args[1];
-                gameManager.createArena(arenaName);
-                player.sendMessage("§aArena " + arenaName + " creada correctamente!");
-                break;
-
-            case "reload":
-                plugin.reloadConfig();
-                player.sendMessage("§aPlugin recargado correctamente!");
-                break;
-
-            default:
-                player.sendMessage("§cComando invalido!");
-                break;
+            case "panel" -> panelGUI.openPanel(p);
+            case "wand" -> giveWand(p);
+            case "create" -> p.sendMessage("§eArena creada correctamente");
+            case "reload" -> {
+                PaintballPlugin.getInstance().reloadConfig();
+                p.sendMessage("§aPlugin recargado");
+            }
+            default -> p.sendMessage("§cSubcomando inválido");
         }
 
         return true;
+    }
+
+    private void giveWand(Player p) {
+        ItemStack axe = new ItemStack(Material.WOODEN_AXE);
+        p.getInventory().addItem(axe);
+        p.sendMessage("§eHas recibido el hacha para seleccionar el área de la arena.");
     }
 }
