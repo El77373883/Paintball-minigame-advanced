@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Compile PaintballPlugin
+    name: Compile & Package PaintballPlugin
     runs-on: ubuntu-latest
 
     steps:
@@ -25,13 +25,28 @@ jobs:
           java-version: 21
           distribution: temurin
 
-      # 3️⃣ Construir el proyecto con Maven
+      # 3️⃣ Cache de dependencias Maven
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # 4️⃣ Compilar el proyecto
       - name: Build with Maven
         run: mvn clean package
 
-      # 4️⃣ Subir el .jar compilado como artefacto
+      # 5️⃣ Subir el JAR compilado como artifact
       - name: Upload JAR
-        uses: actions/upload-artifact@v3
+        if: success()
+        uses: actions/upload-artifact@v4
         with:
           name: paintball-plugin
           path: target/*.jar
+
+      # 6️⃣ Marcar error si falla Maven
+      - name: Compilation Check
+        if: failure()
+        run: echo "::error ::¡Compilación fallida! Revisa los errores de Maven."
