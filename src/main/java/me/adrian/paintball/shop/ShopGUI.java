@@ -7,6 +7,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import me.adrian.paintball.game.GameManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +15,13 @@ public class ShopGUI {
 
     private final GameManager gameManager;
 
-    public ShopGUI(GameManager gm) {
-        this.gameManager = gm;
+    public ShopGUI(GameManager gameManager) {
+        this.gameManager = gameManager;
     }
 
     public void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 9, "§bTienda Paintball");
+
         ItemStack snowball = new ItemStack(Material.SNOWBALL, 32);
         ItemMeta meta = snowball.getItemMeta();
         meta.setDisplayName("§b32 Snowballs");
@@ -27,12 +29,14 @@ public class ShopGUI {
         lore.add("§7Precio: 4 Coins");
         meta.setLore(lore);
         snowball.setItemMeta(meta);
+
         inv.setItem(4, snowball);
+
         player.openInventory(inv);
     }
 
     public boolean handleClick(Player player, int slot) {
-        if (slot == 4) {
+        if (slot == 4) { // Snowballs
             int coins = gameManager.getCoins(player);
             if (coins >= 4) {
                 gameManager.removeCoins(player, 4);
