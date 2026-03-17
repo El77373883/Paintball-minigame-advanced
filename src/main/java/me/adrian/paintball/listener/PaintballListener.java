@@ -1,29 +1,49 @@
 package me.adrian.paintball.listener;
 
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.EventHandler;
-import org.bukkit.entity.Player;
+import me.adrian.paintball.PaintballPlugin;
 import me.adrian.paintball.game.GameManager;
-import me.adrian.paintball.shop.ShopGUI;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 
 public class PaintballListener implements Listener {
 
-    private final GameManager gameManager;
-    private final ShopGUI shopGUI;
+    private PaintballPlugin plugin;
 
-    public PaintballListener(GameManager gm) {
-        this.gameManager = gm;
-        this.shopGUI = new ShopGUI(gm); // Inicializamos la tienda
+    public PaintballListener(PaintballPlugin plugin){
+        this.plugin = plugin;
     }
 
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
+    public void onSnowballHit(EntityDamageByEntityEvent e){
 
-        // Abrir la tienda al hacer clic derecho con un EMERALD
-        if (player.getInventory().getItemInMainHand().getType() == org.bukkit.Material.EMERALD) {
-            shopGUI.open(player);
-        }
+        if(!(e.getDamager() instanceof Snowball)) return;
+        if(!(e.getEntity() instanceof Player)) return;
+
+        Snowball ball = (Snowball) e.getDamager();
+
+        if(!(ball.getShooter() instanceof Player)) return;
+
+        Player shooter = (Player) ball.getShooter();
+        Player victim = (Player) e.getEntity();
+
+        e.setCancelled(true);
+
+        victim.setHealth(0);
+
+        GameManager gm = plugin.getGameManager();
+
+        gm.giveKill(shooter);
+
+        victim.getWorld().strikeLightningEffect(victim.getLocation());
+
+        shooter.playSound(shooter.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+
     }
+
 }
