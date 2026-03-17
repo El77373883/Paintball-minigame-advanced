@@ -1,52 +1,104 @@
 package me.adrian.paintball.shop;
 
+import me.adrian.paintball.PaintballPlugin;
+import me.adrian.paintball.game.GameManager;
+import me.adrian.paintball.utils.CoinsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import me.adrian.paintball.game.GameManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShopGUI {
 
+    private final PaintballPlugin plugin;
     private final GameManager gameManager;
 
     public ShopGUI(GameManager gameManager) {
+        this.plugin = PaintballPlugin.getInstance();
         this.gameManager = gameManager;
     }
 
-    public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 9, "§bTienda Paintball");
+    public void open(Player p) {
+        Inventory inv = Bukkit.createInventory(null, 9*3, "§6Paintball Shop");
 
-        ItemStack snowball = new ItemStack(Material.SNOWBALL, 32);
-        ItemMeta meta = snowball.getItemMeta();
-        meta.setDisplayName("§b32 Snowballs");
+        // Snowballs Pack
+        ItemStack snowballs = new ItemStack(Material.SNOWBALL, 32);
+        ItemMeta meta = snowballs.getItemMeta();
+        meta.setDisplayName("§bPaquete de 32 Snowballs");
         List<String> lore = new ArrayList<>();
-        lore.add("§7Precio: 4 Coins");
+        lore.add("§7Precio: 5 coins");
         meta.setLore(lore);
-        snowball.setItemMeta(meta);
+        snowballs.setItemMeta(meta);
+        inv.setItem(0, snowballs);
 
-        inv.setItem(4, snowball);
+        // Paquete de 64 Snowballs
+        ItemStack snowballs64 = new ItemStack(Material.SNOWBALL, 64);
+        meta = snowballs64.getItemMeta();
+        meta.setDisplayName("§bPaquete de 64 Snowballs");
+        lore = new ArrayList<>();
+        lore.add("§7Precio: 9 coins");
+        meta.setLore(lore);
+        snowballs64.setItemMeta(meta);
+        inv.setItem(1, snowballs64);
 
-        player.openInventory(inv);
+        // Armas (ejemplo: paintball gun)
+        ItemStack gun = new ItemStack(Material.BLAZE_ROD);
+        meta = gun.getItemMeta();
+        meta.setDisplayName("§cPaintball Gun");
+        lore = new ArrayList<>();
+        lore.add("§7Precio: 20 coins");
+        meta.setLore(lore);
+        gun.setItemMeta(meta);
+        inv.setItem(2, gun);
+
+        // Volver
+        ItemStack back = new ItemStack(Material.BARRIER);
+        meta = back.getItemMeta();
+        meta.setDisplayName("§4Volver");
+        back.setItemMeta(meta);
+        inv.setItem(8, back);
+
+        p.openInventory(inv);
     }
 
-    public boolean handleClick(Player player, int slot) {
-        if (slot == 4) { // Snowballs
-            int coins = gameManager.getCoins(player);
-            if (coins >= 4) {
-                gameManager.removeCoins(player, 4);
-                gameManager.refillSnowballs(player, 32);
-                player.sendMessage("§aHas comprado 32 Snowballs por 4 Coins!");
+    // Comprar item
+    public boolean buy(Player p, ItemStack item) {
+        String name = item.getItemMeta().getDisplayName();
+
+        if (name.contains("32 Snowballs")) {
+            if (CoinsManager.getCoins(p) >= 5) {
+                CoinsManager.removeCoins(p,5);
+                p.getInventory().addItem(new ItemStack(Material.SNOWBALL,32));
+                p.sendMessage("§6[PaintballAdvanced] §aCompraste 32 Snowballs");
+                return true;
             } else {
-                player.sendMessage("§cNo tienes suficientes Coins!");
+                p.sendMessage("§6[PaintballAdvanced] §cNo tienes coins suficientes");
+                return false;
             }
-            return true;
         }
-        return false;
-    }
-}
+
+        if (name.contains("64 Snowballs")) {
+            if (CoinsManager.getCoins(p) >= 9) {
+                CoinsManager.removeCoins(p,9);
+                p.getInventory().addItem(new ItemStack(Material.SNOWBALL,64));
+                p.sendMessage("§6[PaintballAdvanced] §aCompraste 64 Snowballs");
+                return true;
+            } else {
+                p.sendMessage("§6[PaintballAdvanced] §cNo tienes coins suficientes");
+                return false;
+            }
+        }
+
+        if (name.contains("Paintball Gun")) {
+            if (CoinsManager.getCoins(p) >= 20) {
+                CoinsManager.removeCoins(p,20);
+                p.getInventory().addItem(new ItemStack(Material.BLAZE_ROD));
+                p.sendMessage("§6[PaintballAdvanced] §aCompraste Paintball Gun");
+                return true;
+            } else {
+                p.sendMessage("
