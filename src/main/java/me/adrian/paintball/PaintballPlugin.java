@@ -4,6 +4,7 @@ import me.adrian.paintball.command.PaintballCommand;
 import me.adrian.paintball.command.PaintballAdminCommand;
 import me.adrian.paintball.game.GameManager;
 import me.adrian.paintball.gui.AdminGUIListener;
+import me.adrian.paintball.gui.AdminPanelGUI;
 import me.adrian.paintball.listener.PaintballListener;
 import me.adrian.paintball.listener.ShopListener;
 import me.adrian.paintball.shop.ShopGUI;
@@ -16,30 +17,32 @@ public class PaintballPlugin extends JavaPlugin {
 
     private GameManager gameManager;
     private ShopGUI shopGUI;
+    private AdminPanelGUI adminPanelGUI;
 
     @Override
     public void onEnable() {
         // Instancia estática
         instance = this;
 
-        // Inicializar GameManager y ShopGUI
+        // Inicializar GameManager
         this.gameManager = new GameManager();
+
+        // Inicializar ShopGUI
         this.shopGUI = new ShopGUI(this.gameManager);
 
-        // Registrar comandos premium
+        // Inicializar AdminPanelGUI
+        this.adminPanelGUI = new AdminPanelGUI(this);
+
+        // Registrar comandos
         this.getCommand("pa").setExecutor(new PaintballCommand(this));
         this.getCommand("paadmin").setExecutor(new PaintballAdminCommand(this));
-        this.getCommand("pacreator").setExecutor((sender, cmd, label, args) -> {
-            sender.sendMessage("§6[PaintballAdvanced] §aPlugin creado por §eSoyAdriAnyT001");
-            return true;
-        });
 
         // Registrar listeners
         getServer().getPluginManager().registerEvents(new PaintballListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
         getServer().getPluginManager().registerEvents(new AdminGUIListener(this), this);
 
-        // Iniciar ScoreboardTask (animado)
+        // Iniciar ScoreboardTask
         new ScoreboardTask(gameManager).runTaskTimer(this, 0, 40);
 
         getLogger().info("§a[PaintballAdvanced] Plugin habilitado correctamente!");
@@ -47,12 +50,6 @@ public class PaintballPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Limpiar jugadores de todas las arenas
-        gameManager.getArenas().forEach(arena -> arena.getPlayers().forEach(p -> {
-            p.getInventory().clear();
-            p.sendMessage("§c[PaintballAdvanced] Se ha cerrado la partida y tu inventario fue limpiado.");
-        }));
-
         getLogger().info("§c[PaintballAdvanced] Plugin deshabilitado!");
     }
 
@@ -67,5 +64,9 @@ public class PaintballPlugin extends JavaPlugin {
 
     public ShopGUI getShopGUI() {
         return shopGUI;
+    }
+
+    public AdminPanelGUI getAdminPanelGUI() {
+        return adminPanelGUI;
     }
 }
