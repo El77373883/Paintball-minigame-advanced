@@ -1,39 +1,13 @@
-package me.adrian.paintball.game;
+private ItemStack[] inventory;
 
-import org.bukkit.inventory.ItemStack;
+public void saveInventory(Player p){
 
-public class PlayerData {
+    inventory = p.getInventory().getContents();
 
-    private int kills;
-    private int coins;
-    private ItemStack[] savedInventory;
+}
 
-    public PlayerData() {
-        this.kills = 0;
-        this.coins = 0;
-    }
+public void restoreInventory(Player p){
 
-    public int getKills() {
-        return kills;
-    }
+    p.getInventory().setContents(inventory);
 
-    public void addKill() {
-        this.kills++;
-    }
-
-    public int getCoins() {
-        return coins;
-    }
-
-    public void addCoins(int amount) {
-        this.coins += amount;
-    }
-
-    public void setSavedInventory(ItemStack[] inv) {
-        this.savedInventory = inv;
-    }
-
-    public ItemStack[] getSavedInventory() {
-        return savedInventory;
-    }
 }
