@@ -1,44 +1,52 @@
 package me.adrian.paintball.scoreboard;
 
+import me.adrian.paintball.PaintballPlugin;
+import me.adrian.paintball.game.Arena;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import me.adrian.paintball.PaintballPlugin;
-import me.adrian.paintball.game.GameManager;
-import org.bukkit.Location;
-import org.bukkit.entity.Firework;
-import org.bukkit.FireworkEffect;
-import org.bukkit.inventory.meta.FireworkMeta;
 
 public class GameStartTask extends BukkitRunnable {
 
-    private final PaintballPlugin plugin;
-    private final GameManager gm;
     private int countdown = 10;
+    private Arena arena;
+    private PaintballPlugin plugin;
 
-    public GameStartTask(PaintballPlugin plugin, GameManager gm) {
+    public GameStartTask(PaintballPlugin plugin, Arena arena){
         this.plugin = plugin;
-        this.gm = gm;
+        this.arena = arena;
     }
 
     @Override
-    public void run() {
-        if (countdown > 0) {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.sendTitle("§eComienza en", "§c" + countdown, 0, 20, 0);
-                p.playSound(p.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
+    public void run(){
+
+        if(countdown == 0){
+
+            arena.setStarted(true);
+
+            for(Player p : arena.getPlayers()){
+
+                p.sendTitle("§a¡GO!", "§7La partida comenzó",10,40,10);
+                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,1,1);
+
             }
-            countdown--;
-        } else {
-            this.cancel();
-            // Partida comenzada, al final se pueden lanzar fuegos artificiales
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                Location loc = p.getLocation();
-                Firework fw = (Firework) p.getWorld().spawn(loc, Firework.class);
-                FireworkMeta meta = fw.getFireworkMeta();
-                meta.addEffect(FireworkEffect.builder().withColor(org.bukkit.Color.AQUA).withTrail().build());
-                fw.setFireworkMeta(meta);
-            }
+
+            new GameTimerTask(plugin, arena).runTaskTimer(plugin,20,20);
+
+            cancel();
+            return;
         }
+
+        for(Player p : arena.getPlayers()){
+
+            p.sendTitle("§e" + countdown,"§7La partida comienza",0,20,0);
+            p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK,1,1);
+
+        }
+
+        countdown--;
+
     }
+
 }
