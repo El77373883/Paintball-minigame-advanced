@@ -6,4 +6,6 @@ author: soyadrianyt001
 
 commands:
   pa:
-    description: Paintball admin
+    description: Paintball command
+  paadmin:
+    description: Admin command
