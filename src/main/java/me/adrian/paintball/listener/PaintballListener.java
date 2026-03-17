@@ -1,4 +1,4 @@
-package me.adrian.paintball.listener;
+import me.adrian.paintball.game.GameTeam;
 
 import me.adrian.paintball.PaintballPlugin;
 import me.adrian.paintball.game.Arena;
