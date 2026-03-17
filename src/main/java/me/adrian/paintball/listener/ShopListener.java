@@ -1,27 +1,33 @@
 package me.adrian.paintball.listener;
 
+import me.adrian.paintball.PaintballPlugin;
+import me.adrian.paintball.shop.ShopGUI;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import me.adrian.paintball.shop.ShopGUI;
+import org.bukkit.inventory.ItemStack;
 
 public class ShopListener implements Listener {
 
-    private final ShopGUI shop;
+    private final PaintballPlugin plugin;
 
-    public ShopListener(ShopGUI shop) {
-        this.shop = shop;
+    public ShopListener(PaintballPlugin plugin) {
+        this.plugin = plugin;
     }
 
     @EventHandler
-    public void onClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player player)) return;
+    public void onShopClick(InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player)) return;
 
-        if (e.getView().title().equals("§bTienda Paintball")) {
+        Player p = (Player) e.getWhoClicked();
+        ItemStack item = e.getCurrentItem();
+        if (item == null) return;
+        if (e.getView().getTitle().contains("Paintball Shop")) {
             e.setCancelled(true);
-            int slot = e.getSlot();
-            shop.handleClick(player, slot);
+
+            ShopGUI shop = new ShopGUI(plugin.getGameManager());
+            shop.buy(p,item);
         }
     }
 }
