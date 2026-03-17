@@ -1,66 +1,115 @@
 package me.adrian.paintball.listener;
 
+import me.adrian.paintball.PaintballPlugin;
+import me.adrian.paintball.game.Arena;
 import me.adrian.paintball.game.GameManager;
 import me.adrian.paintball.game.GameManager.GameTeam;
 import me.adrian.paintball.utils.CoinsManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.Color;
 
-import me.adrian.paintball.PaintballPlugin;
-
 public class PaintballListener implements Listener {
 
+    private final PaintballPlugin plugin;
     private final GameManager gameManager;
 
     public PaintballListener(PaintballPlugin plugin) {
+        this.plugin = plugin;
         this.gameManager = plugin.getGameManager();
     }
 
-    // Cuando el jugador entra a la arena (invocar esto desde tu comando o admin panel)
-    public void addPlayer(Player p) {
-        // Añadir a la lista de jugadores
-        gameManager.addPlayer(p);
+    // ---------------- Player Join ---------------- //
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        // Mensaje premium
+        p.sendMessage("§6[PaintballAdvanced] §aBienvenido a Paintball!");
+    }
 
-        // Limpiar inventario
+    // ---------------- Player Quit ---------------- //
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        if (gameManager.isPlaying(p)) {
+            // Si se va de la arena, el otro equipo gana
+            Arena arena = gameManager.getCurrentArena();
+            if (arena != null) {
+                arena.endGame();
+            }
+            // Limpiar inventario
+            p.getInventory().clear();
+        }
+    }
+
+    // ---------------- Kill con Snowball ---------------- //
+    @EventHandler
+    public void onHit(EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof Player)) return;
+        Player victim = (Player) e.getEntity();
+
+        if (e.getDamager() instanceof Snowball) {
+            Snowball ball = (Snowball) e.getDamager();
+
+            if (ball.getShooter() instanceof Player) {
+                Player killer = (Player) ball.getShooter();
+
+                // Efecto trueno
+                victim.getWorld().strikeLightningEffect(victim.getLocation());
+
+                // Coins por kill
+                CoinsManager.addCoins(killer,3);
+                killer.sendMessage("§6[PaintballAdvanced] §a+3 Coins");
+
+                // Eliminar jugador de la arena
+                gameManager.removePlayer(victim);
+
+                // Limpiar inventario
+                victim.getInventory().clear();
+                victim.sendMessage("§6[PaintballAdvanced] §cFuiste eliminado!");
+            }
+        }
+    }
+
+    // ---------------- Entrar a Arena ---------------- //
+    public void addPlayerToArena(Player p, GameTeam team) {
+        // Evitar items previos
         p.getInventory().clear();
 
-        // Dar snowballs
-        p.getInventory().addItem(new ItemStack(Material.SNOWBALL, 64));
-        p.getInventory().addItem(new ItemStack(Material.SNOWBALL, 64));
+        // Registrar jugador
+        gameManager.addPlayer(p);
 
-        // Armadura del team automáticamente
-        GameTeam team = gameManager.getTeam(p);
+        // Dar snowballs
+        p.getInventory().addItem(new ItemStack(Material.SNOWBALL,64));
+        p.getInventory().addItem(new ItemStack(Material.SNOWBALL,64));
+
+        // Armadura automática según equipo
         Color color = team == GameTeam.BLUE ? Color.BLUE : Color.RED;
 
         ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
-        ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
-        ItemStack legs = new ItemStack(Material.LEATHER_LEGGINGS);
-        ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
-
-        LeatherArmorMeta meta;
-
-        meta = (LeatherArmorMeta) helmet.getItemMeta();
+        LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
         meta.setColor(color);
         helmet.setItemMeta(meta);
 
+        ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
         meta = (LeatherArmorMeta) chest.getItemMeta();
         meta.setColor(color);
         chest.setItemMeta(meta);
 
+        ItemStack legs = new ItemStack(Material.LEATHER_LEGGINGS);
         meta = (LeatherArmorMeta) legs.getItemMeta();
         meta.setColor(color);
         legs.setItemMeta(meta);
 
+        ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
         meta = (LeatherArmorMeta) boots.getItemMeta();
         meta.setColor(color);
         boots.setItemMeta(meta);
@@ -70,45 +119,7 @@ public class PaintballListener implements Listener {
         p.getInventory().setLeggings(legs);
         p.getInventory().setBoots(boots);
 
-        p.sendMessage("§6[PaintballAdvanced] §a¡Has entrado a la arena!");
-    }
-
-    @EventHandler
-    public void onSnowballHit(EntityDamageByEntityEvent e) {
-        if (!(e.getEntity() instanceof Player)) return;
-
-        Player victim = (Player) e.getEntity();
-
-        if (!(e.getDamager() instanceof Snowball)) return;
-
-        Snowball ball = (Snowball) e.getDamager();
-
-        if (!(ball.getShooter() instanceof Player)) return;
-
-        Player killer = (Player) ball.getShooter();
-
-        if (!gameManager.isAlive(victim) || !gameManager.isAlive(killer)) return;
-
-        // Eliminar jugador
-        gameManager.eliminate(killer, victim);
-
-        // Efecto de trueno
-        victim.getWorld().strikeLightningEffect(victim.getLocation());
-
-        // Dar coins
-        CoinsManager.addCoins(killer, 3);
-        killer.sendMessage("§6+3 Coins por eliminar a " + victim.getName());
-
-        victim.sendMessage("§c¡Has sido eliminado por " + killer.getName() + "!");
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        if (gameManager.isPlaying(p)) {
-            gameManager.removePlayer(p);
-            // Si quieres, asignar victoria al otro equipo
-            gameManager.getCurrentArena().checkWinCondition();
-        }
+        // Mensaje premium
+        p.sendMessage("§6[PaintballAdvanced] §aEntraste a la arena!");
     }
 }
