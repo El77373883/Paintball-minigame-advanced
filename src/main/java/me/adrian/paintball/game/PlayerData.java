@@ -1,17 +1,39 @@
 package me.adrian.paintball.game;
 
-public class PlayerData {
-    private final int kills;
-    private final int coins;
-    private final int snowballs;
+import org.bukkit.inventory.ItemStack;
 
-    public PlayerData(int kills, int coins, int snowballs) {
-        this.kills = kills;
-        this.coins = coins;
-        this.snowballs = snowballs;
+public class PlayerData {
+
+    private int kills;
+    private int coins;
+    private ItemStack[] savedInventory;
+
+    public PlayerData() {
+        this.kills = 0;
+        this.coins = 0;
     }
 
-    public int getKills() { return kills; }
-    public int getCoins() { return coins; }
-    public int getSnowballs() { return snowballs; }
+    public int getKills() {
+        return kills;
+    }
+
+    public void addKill() {
+        this.kills++;
+    }
+
+    public int getCoins() {
+        return coins;
+    }
+
+    public void addCoins(int amount) {
+        this.coins += amount;
+    }
+
+    public void setSavedInventory(ItemStack[] inv) {
+        this.savedInventory = inv;
+    }
+
+    public ItemStack[] getSavedInventory() {
+        return savedInventory;
+    }
 }
