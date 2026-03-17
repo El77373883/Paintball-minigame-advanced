@@ -2,10 +2,10 @@ name: PaintballAdvanced
 main: me.adrian.paintball.PaintballPlugin
 version: 1.0
 api-version: 1.20
-author: soyadrianyt001
-
 commands:
   pa:
-    description: Paintball command
+    description: Comando principal de Paintball
+    usage: /pa
   paadmin:
-    description: Admin command
+    description: Panel de administrador
+    usage: /paadmin
