@@ -1,44 +1,51 @@
 package me.adrian.paintball;
 
-import me.adrian.paintball.command.PaintballCommand;
 import me.adrian.paintball.command.PaintballAdminCommand;
+import me.adrian.paintball.command.PaintballCommand;
 import me.adrian.paintball.game.GameManager;
-import me.adrian.paintball.shop.ShopGUI;
+import me.adrian.paintball.listener.AdminGUIListener;
+import me.adrian.paintball.listener.PaintballListener;
+import me.adrian.paintball.listener.ShopListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PaintballPlugin extends JavaPlugin {
 
-    private static PaintballPlugin instance; // Singleton
     private GameManager gameManager;
-    private ShopGUI shopGUI;
 
     @Override
     public void onEnable() {
-        instance = this;
 
-        this.gameManager = new GameManager();
-        this.shopGUI = new ShopGUI(this.gameManager);
+        // Config
+        saveDefaultConfig();
 
+        // Game Manager
+        gameManager = new GameManager(this);
+
+        // Comandos
         getCommand("pa").setExecutor(new PaintballCommand(this));
         getCommand("paadmin").setExecutor(new PaintballAdminCommand(this));
 
-        getLogger().info("PaintballPlugin habilitado!");
+        // Listeners
+        getServer().getPluginManager().registerEvents(new PaintballListener(this), this);
+        getServer().getPluginManager().registerEvents(new ShopListener(this), this);
+
+        // 🔥 ADMIN PANEL LISTENER
+        getServer().getPluginManager().registerEvents(new AdminGUIListener(this), this);
+
+        getLogger().info("PaintballAdvanced cargado correctamente.");
+        getLogger().info("Plugin creado por soyadrianyt001");
+
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("PaintballPlugin deshabilitado!");
-    }
 
-    public static PaintballPlugin getInstance() {
-        return instance;
+        getLogger().info("PaintballAdvanced desactivado.");
+
     }
 
     public GameManager getGameManager() {
         return gameManager;
     }
 
-    public ShopGUI getShopGUI() {
-        return shopGUI;
-    }
 }
